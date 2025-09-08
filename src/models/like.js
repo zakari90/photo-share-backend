@@ -14,5 +14,6 @@ const likeSchema = new Schema({
 }, {
   timestamps: true,
 });
+const Like = model("Like", likeSchema);
 
-export default model("Like", likeSchema);
+export default Like;

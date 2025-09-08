@@ -18,11 +18,15 @@ const postSchema = new Schema({
     type: Number,
     required: true,
   },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
   creator: {
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
 });
-
-export default model("Post", postSchema);
+const Post = model("Post", postSchema);
+export default Post;
