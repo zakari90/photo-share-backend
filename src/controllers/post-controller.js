@@ -1,22 +1,31 @@
 import Post from "../models/post.js";
 
-export async function newPost(req, res) {
+export async function createNewPost(req, res) {
+  console.log("***************************************************");
+  console.log("Request Body:", req.body);
+  console.log("Request File:", req.file);
+  console.log("Current User:", req.currentUser);
+  console.log("***************************************************");
+  
   const { title, description } = req.body;
+
   try {
     if (!req.file) {
-      return res.status(400).json({ message: "لا يوجد ملف لتحميله" });
+      return res.status(400).json({ message: "No file uploaded." });
     }
+
     await Post.create({
       title,
-      img_url: `/public/images/${req.file.filename}`,
+      imageUrl: `/public/images/${req.file.filename}`,
       description,
       creator: req.currentUser.id,
     });
 
-    res.status(200).json({ message: "تم إضافة منشور جديد" });
+    return res.status(200).json({ message: "Post created successfully." });
   }
-  catch (e) {
-    res.status(500).json(e);
+  catch (error) {
+    console.error("Error creating post:", error);
+    return res.status(500).json({ message: "Internal server error." });
   }
 }
 
@@ -27,9 +36,7 @@ export async function getAllPosts(req, res) {
   }
   catch (error) {
     console.error("Error fetching posts:", error);
-    return res.status(500).json({
-      message: "Failed to fetch posts",
-    });
+    return res.status(500).json({ message: "Failed to fetch posts." });
   }
 }
 

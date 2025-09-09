@@ -1,15 +1,16 @@
 import express from "express";
-import { likeCount, setLikeState } from "../controllers/like-controller";
-import { getAllPosts, newPost } from "../controllers/post-controller";
-import { login, register } from "../controllers/user-controller";
-import { isLoggedIn, upload } from "../middlewares";
+import { likeCount, setLikeState } from "../controllers/like-controller.js";
+import { createNewPost, getAllPosts } from "../controllers/post-controller.js";
+import { login, register } from "../controllers/user-controller.js";
+import isLoggedIn from "../middlewares/authentication.js";
+import upload from "../middlewares/upload.js";
 
 const router = express.Router();
 
 router.post("/account/login", login);
 router.post("/account/register", register);
 
-router.post("/posts/create", upload.single("postImg"), isLoggedIn, newPost);
+router.post("/posts/create", isLoggedIn, upload.single("image"), createNewPost);
 router.get("/posts", getAllPosts);
 
 router.put("/posts/:postId/like", isLoggedIn, setLikeState);

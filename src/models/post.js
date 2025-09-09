@@ -10,14 +10,6 @@ const postSchema = new Schema({
     type: String,
     required: true,
   },
-  date: {
-    type: Date,
-    required: true,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
   imageUrl: {
     type: String,
     required: true,
