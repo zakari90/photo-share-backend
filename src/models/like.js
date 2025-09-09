@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
 
 const likeSchema = new Schema({
-  event: {
+  post: {
     type: Schema.Types.ObjectId,
     ref: "Post",
     required: true,

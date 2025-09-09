@@ -5,14 +5,14 @@ export async function setLikeState(req, res) {
     const { id: userId } = req.currentUser;
     const { postId } = req.params;
 
-    const existingLike = await Like.findOne({ userId, postId });
+    const existingLike = await Like.findOne({ user: userId, post: postId });
 
     if (existingLike) {
-      await Like.deleteOne({ userId, postId });
+      await Like.deleteOne({ user: userId, post: postId });
       return res.status(200).json({ message: "Like removed" });
     }
     else {
-      await Like.create({ userId, postId });
+      await Like.create({ user: userId, post: postId });
       return res.status(200).json({ message: "Like added" });
     }
   }
@@ -28,8 +28,8 @@ export async function likeCount(req, res) {
     const { postId } = req.params;
 
     const [likes, userLiked] = await Promise.all([
-      Like.countDocuments({ postId }),
-      Like.exists({ userId, postId }),
+      Like.countDocuments({ post: postId }),
+      Like.exists({ user: userId, post: postId }),
     ]);
 
     return res.status(200).json({
