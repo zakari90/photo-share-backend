@@ -34,12 +34,6 @@ export async function deleteMyPost(req, res) {
 }
 
 export async function createNewPost(req, res) {
-  console.log("***************************************************");
-  console.log("Request Body:", req.body);
-  console.log("Request File:", req.file);
-  console.log("Current User:", req.currentUser);
-  console.log("***************************************************");
-
   const { title, description } = req.body;
 
   try {
@@ -73,29 +67,6 @@ export async function getAllPosts(req, res) {
   }
 }
 
-// export async function getPost(req, res) {
-//   try {
-//     const posts = await Post.findOne().populate("creator").lean();
-//     return res.status(200).json(posts);
-//   }
-//   catch (e) {
-//     res.status(500).json(e);
-//   }
-// }
-// export async function getMyPost(req, res) {
-//   try {
-//     const myPost = await models.Post.findOne({
-//       where: {
-//         UserId: req.currentUser.id,
-//         id: req.params.postId,
-//       },
-//     });
-//     res.status(200).json(myPost);
-//   }
-//   catch (e) {
-//     res.status(500).json(e);
-//   }
-// }
 export async function getAllMyPosts(req, res) {
   try {
     const myPosts = await Post.find({ creator: req.currentUser.id }).sort({ createdAt: -1 });
@@ -115,7 +86,7 @@ export async function updateMyPost(req, res) {
     const updatedPost = await Post.findOneAndUpdate(
       { _id: req.params.postId, creator: req.currentUser.id },
       { title, description },
-      { new: true }, // Return updated doc
+      { new: true },
     );
 
     if (!updatedPost) {
@@ -127,5 +98,47 @@ export async function updateMyPost(req, res) {
   catch (e) {
     console.error("Error updating post:", e);
     res.status(500).json({ message: "Server error", error: e.message });
+  }
+}
+
+export async function updatePostImage(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const currentPost = await Post.findById(req.params.postId);
+
+    if (!currentPost) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (currentPost.imageUrl) {
+      const oldPath = path.join(
+        process.cwd(),
+        "public",
+        "images",
+        path.basename(currentPost.imageUrl),
+      );
+
+      try {
+        await fs.unlink(oldPath);
+      }
+      catch (err) {
+        console.warn("No old image to delete or error deleting:", err.message);
+      }
+    }
+
+    const newImgUrl = `/public/images/${req.file.filename}`;
+    await Post.findOneAndUpdate(
+      { _id: req.params.postId, creator: req.currentUser.id },
+      { imageUrl: newImgUrl },
+      { new: true },
+    );
+
+    return res.status(200).json({ message: "Photo updated successfully" });
+  }
+  catch (e) {
+    return res.status(500).json({ message: "Error updating photo", error: e.message });
   }
 }
